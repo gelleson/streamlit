@@ -36,7 +36,7 @@ def display_pdf(file_path, start_page, end_page):
             pdf_writer.write(output_stream)
             pdf_bytes = output_stream.getvalue()
 
-        pdf_viewer(file_path, pages_to_render=list(range(start_page, end_page)))
+        pdf_viewer(file_path, pages_to_render=[start_page])
 
     except Exception as error:
         st.error(f"Error displaying PDF: {str(error)}")
