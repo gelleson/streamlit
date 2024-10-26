@@ -238,6 +238,9 @@ st-copy-to-clipboard==0.1.6
 streamlit==1.39.0
     # via pdf-summary
     # via st-copy-to-clipboard
+    # via streamlit-pdf-viewer
+streamlit-pdf-viewer==0.0.19
+    # via pdf-summary
 tenacity==9.0.0
     # via langchain
     # via langchain-community

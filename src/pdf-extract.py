@@ -7,7 +7,7 @@ from langchain.prompts import PromptTemplate
 from langchain.schema.runnable import RunnablePassthrough
 from pypdf import PdfReader, PdfWriter
 import io
-import pyperclip
+from streamlit_pdf_viewer import pdf_viewer
 from st_copy_to_clipboard import st_copy_to_clipboard
 
 from dotenv import load_dotenv
@@ -26,6 +26,7 @@ st.title("PDF Topic Extraction and Summarization")
 
 def display_pdf(file_path, start_page, end_page):
     try:
+        pdf_bytes = None
         with open(file_path, "rb") as f:
             pdf_reader = PdfReader(f)
             pdf_writer = PdfWriter()
@@ -36,8 +37,9 @@ def display_pdf(file_path, start_page, end_page):
             pdf_writer.write(output_stream)
             pdf_bytes = output_stream.getvalue()
             base64_pdf = base64.b64encode(pdf_bytes).decode('utf-8')
-        pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="600" type="application/pdf"></iframe>'
-        st.markdown(pdf_display, unsafe_allow_html=True)
+
+        pdf_viewer(pdf_bytes)
+
     except Exception as e:
         st.error(f"Error displaying PDF: {str(e)}")
         st.code(traceback.format_exc())

@@ -15,6 +15,7 @@ dependencies = [
     "pyperclip>=1.9.0",
     "python-dotenv>=1.0.1",
     "st-copy-to-clipboard>=0.1.6",
+    "streamlit-pdf-viewer>=0.0.19",
 ]
 readme = "README.md"
 requires-python = ">= 3.8"
