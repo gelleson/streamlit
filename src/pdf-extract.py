@@ -118,13 +118,11 @@ def main():
                             st.session_state.summary = generate_summary(topic, merged_text)
 
             with col2:
-                if 'summary' in st.session_state:
-                    st.subheader(f"{st.session_state.selected_topic}")
-                else:
+                if 'summary' not in st.session_state:
                     st.subheader("Selected Topic")
                 if 'summary' in st.session_state:
-                    st_copy_to_clipboard(st.session_state.summary)
                     st.write(st.session_state.summary)
+                    st_copy_to_clipboard(st.session_state.summary, before_copy_label="Copy", show_text=False)
 
             st.subheader("Selected Pages")
             display_pdf("temp.pdf", st.session_state.page_slider[0], st.session_state.page_slider[1])
