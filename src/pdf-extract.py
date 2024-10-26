@@ -118,14 +118,18 @@ def main():
                             st.session_state.summary = generate_summary(topic, merged_text)
 
             with col2:
-                st.subheader("Selected Pages")
-                display_pdf("temp.pdf", st.session_state.page_slider[0], st.session_state.page_slider[1])
+                if 'summary' in st.session_state:
+                    st.subheader(f"{st.session_state.selected_topic}")
+                else:
+                    st.subheader("Selected Topic")
+                if 'summary' in st.session_state:
+                    st_copy_to_clipboard(st.session_state.summary)
+                    st.write(st.session_state.summary)
+
+            st.subheader("Selected Pages")
+            display_pdf("temp.pdf", st.session_state.page_slider[0], st.session_state.page_slider[1])
 
             # Display summary after the two columns
-            if 'summary' in st.session_state:
-                st.subheader(f"Topic: {st.session_state.selected_topic}")
-                st.write(st.session_state.summary)
-                st_copy_to_clipboard(st.session_state.summary)
 
         except Exception as e:
             st.error(f"Error reading the PDF: {str(e)}")
