@@ -71,72 +71,65 @@ if uploaded_file is not None:
 
         st.slider("Adjust page range", 1, total_pages, (start_page, end_page), key="page_slider")
 
-        col1, col2 = st.columns(2)
-
-
         # Merge the selected pages into a single text
         selected_pages = pdf_reader.pages[st.session_state.page_slider[0] - 1:st.session_state.page_slider[1]]
         merged_text = "\n".join([page.extract_text() for page in selected_pages])
 
-        # Initialize llm outside of button click events
-        with col1:
-            if st.button("Extract Topics"):
-                try:
-                    topic_extraction_prompt_template = """Extract only the main topic names discussed in the following text. List each topic name on a new line without any additional formatting or numbering:
-                    {text}
-                    """
-                    topic_extraction_prompt = PromptTemplate(
-                        input_variables=["text"], template=topic_extraction_prompt_template
-                    )
+        if st.button("Extract Topics"):
+            try:
+                topic_extraction_prompt_template = """Extract only the main topic names discussed in the following text. List each topic name on a new line without any additional formatting or numbering:
+                {text}
+                """
+                topic_extraction_prompt = PromptTemplate(
+                    input_variables=["text"], template=topic_extraction_prompt_template
+                )
 
-                    topic_chain = (
-                            {"text": RunnablePassthrough()}
-                            | topic_extraction_prompt
-                            | llm
-                    )
+                topic_chain = (
+                        {"text": RunnablePassthrough()}
+                        | topic_extraction_prompt
+                        | llm
+                )
 
-                    result = topic_chain.invoke(merged_text)
-                    topics = result.strip().split('\n')
+                result = topic_chain.invoke(merged_text)
+                topics = result.strip().split('\n')
 
-                    st.session_state.topics = topics  # Store topics in session state
+                st.session_state.topics = topics  # Store topics in session state
 
-                except Exception as e:
-                    st.error(f"An error occurred during topic extraction: {str(e)}")
-                    st.code(traceback.format_exc())
+            except Exception as e:
+                st.error(f"An error occurred during topic extraction: {str(e)}")
+                st.code(traceback.format_exc())
 
-            # Display topics and generate summaries
-            if 'topics' in st.session_state:
-                st.subheader("Main Topics Discussed:")
-                for topic in st.session_state.topics:
-                    if st.button(topic, key=topic):
-                        try:
-                            summarization_prompt_template = f"""Generate a concise summary for educational purposes on the topic of "{topic}" based on the following text:
-                            {{text}}
-                            """
-                            summarization_prompt = PromptTemplate(
-                                input_variables=["text"], template=summarization_prompt_template
-                            )
-                            summarization_chain = (
-                                    {"text": RunnablePassthrough()}
-                                    | summarization_prompt
-                                    | llm
-                            )
-                            summary = summarization_chain.invoke(merged_text)
-                            st.write(summary)
+        # Display topics and generate summaries
+        if 'topics' in st.session_state:
+            st.subheader("Main Topics Discussed:")
+            for topic in st.session_state.topics:
+                if st.button(topic, key=topic):
+                    try:
+                        summarization_prompt_template = f"""Generate a concise summary for educational purposes on the topic of "{topic}" based on the following text:
+                        {{text}}
+                        """
+                        summarization_prompt = PromptTemplate(
+                            input_variables=["text"], template=summarization_prompt_template
+                        )
+                        summarization_chain = (
+                                {"text": RunnablePassthrough()}
+                                | summarization_prompt
+                                | llm
+                        )
+                        summary = summarization_chain.invoke(merged_text)
+                        st.write(summary)
+                        st_copy_to_clipboard(summary)
+
+                        # Add copy to clipboard button
+                        if st.button("Copy Summary to Clipboard", key=f"copy_{topic}"):
                             st_copy_to_clipboard(summary)
 
-                            # Add copy to clipboard button
-                            if st.button("Copy Summary to Clipboard", key=f"copy_{topic}"):
-                                st_copy_to_clipboard(summary)
+                    except Exception as e:
+                        st.error(f"An error occurred during summary generation: {str(e)}")
+                        st.code(traceback.format_exc())
 
-                        except Exception as e:
-                            st.error(f"An error occurred during summary generation: {str(e)}")
-                            st.code(traceback.format_exc())
-        with col2:
-            st.subheader("Selected Pages")
-            display_pdf("temp.pdf", st.session_state.page_slider[0], st.session_state.page_slider[1])
-
-
+        st.subheader("Selected Pages")
+        display_pdf("temp.pdf", st.session_state.page_slider[0], st.session_state.page_slider[1])
 
     except Exception as e:
         st.error(f"Error reading the PDF: {str(e)}")
@@ -147,23 +140,4 @@ if uploaded_file is not None:
         if os.path.exists("temp.pdf"):
             os.remove("temp.pdf")
 
-# Add JavaScript to enable clipboard functionality
-st.markdown("""
-<script>
-const streamlitDoc = window.parent.document;
 
-const buttons = streamlitDoc.querySelectorAll('button');
-buttons.forEach(button => {
-    if (button.innerText.includes('Copy Summary to Clipboard')) {
-        button.addEventListener('click', function() {
-            const summary = streamlitDoc.querySelector('.stMarkdown p').innerText;
-            navigator.clipboard.writeText(summary).then(function() {
-                console.log('Summary copied to clipboard successfully!');
-            }, function(err) {
-                console.error('Could not copy text: ', err);
-            });
-        });
-    }
-});
-</script>
-""", unsafe_allow_html=True)
