@@ -10,6 +10,9 @@ A Streamlit application for extracting topics and generating summaries from PDF 
 
 This project provides a user-friendly interface to upload a PDF document, select specific pages, extract the main topics discussed, and generate concise summaries for each topic.  It leverages the power of Langchain and Google Gemini for natural language processing tasks.
 
+## Apps
+- [PDF Topic Extraction and Summarization](https://pdf-summary-extract.streamlit.app)
+
 ## Features
 
 * **PDF Upload:** Easily upload PDF files for processing.
